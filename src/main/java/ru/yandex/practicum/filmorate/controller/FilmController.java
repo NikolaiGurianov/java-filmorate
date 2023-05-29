@@ -44,7 +44,7 @@ public class FilmController {
     }
 
     private void validateFilm(Film film) {
-        if (film.getName().isBlank() || film.getDuration() < 0 || film.getDescription().length() > 200 ||
+        if (film.getName().isBlank() || (film.getDuration() < 0) || (film.getDescription().length() > 200) ||
                 film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
         ) {
             throw new ValidationException("Фильм не создан, не прошел проверку");
