@@ -15,44 +15,47 @@ class UserControllerTest {
 
     @Test
     void createTest() {
-        User actualUser = new User(1,"yandex@yandex.ru", "Tyler", "The Creator",
-                LocalDate.of(2000,1,2));
+        User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
 
-        User expectedUser = new User(1,"yandex@yandex.ru", "Tyler", "The Creator",
-                LocalDate.of(2000,1,2));
+        User expectedUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
 
         User resultUser = userController.createUser(actualUser);
-        Assertions.assertEquals(expectedUser,resultUser);
+        Assertions.assertEquals(expectedUser, resultUser);
     }
 
     @Test
     void createEmptyNameTest() {
-        User actualUser = new User(1,"yandex@yandex.ru", "Tyler", "Tyler",
-                LocalDate.of(2000,1,2));
+        User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "Tyler",
+                LocalDate.of(2000, 1, 2));
 
-        User expectedUser = new User(1,"yandex@yandex.ru", "Tyler", "The Creator",
-                LocalDate.of(2000,1,2));
+        User expectedUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
         expectedUser.setName("");
 
         User resultUser = userController.createUser(expectedUser);
-        Assertions.assertEquals(actualUser,resultUser);
+        Assertions.assertEquals(actualUser, resultUser);
     }
+
     @Test
-    void createInvalidEmailTest(){
-        User actualUser = new User(1,"yandex/yandex.ru", "Tyler", "The Creator",
-                LocalDate.of(2000,1,2));
+    void createInvalidEmailTest() {
+        User actualUser = new User(1, "yandex/yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
         assertThrows(ValidationException.class, () -> userController.createUser(actualUser));
     }
+
     @Test
-    void createInvalidLoginTest(){
-        User actualUser = new User(1,"yandex@yandex.ru", "The Creator", "The Creator",
-                LocalDate.of(2000,1,2));
+    void createInvalidLoginTest() {
+        User actualUser = new User(1, "yandex@yandex.ru", "The Creator", "The Creator",
+                LocalDate.of(2000, 1, 2));
         assertThrows(ValidationException.class, () -> userController.createUser(actualUser));
     }
+
     @Test
-    void createBirthdayLoginTest(){
-        User actualUser = new User(1,"yandex@yandex.ru", "Tyler", "The Creator",
-                LocalDate.of(9999,1,2));
+    void createBirthdayLoginTest() {
+        User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(9999, 1, 2));
         assertThrows(ValidationException.class, () -> userController.createUser(actualUser));
     }
 }
