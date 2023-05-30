@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class UserController {
     private int generatedUserId = 1;
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         validateUser(user);
         user.setId(generatedUserId++);
         userMap.put(user.getId(), user);
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User updatedUser) {
+    public User updateUser(@Valid @RequestBody User updatedUser) {
         if (updatedUser != null && userMap.containsKey(updatedUser.getId())) {
             userMap.put(updatedUser.getId(), updatedUser);
             log.debug("Пользователь обновлен: '{}'", updatedUser);
@@ -45,9 +46,14 @@ public class UserController {
 
     private void validateUser(User user) {
         LocalDate now = LocalDate.now();
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@") || user.getLogin().isBlank() || user.getLogin().contains(" ")
-                || user.getBirthday().isAfter(now)) {
-            throw new ValidationException("Пользователь не создан, не прошел проверку");
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Пользователь не создан. Некорректная электронная почта.");
+        }
+        if (user.getLogin() == null || user.getLogin().contains(" ")) {
+            throw new ValidationException("Пользователь не создан. Некорректный логин.");
+        }
+        if (user.getBirthday() == null || user.getBirthday().isAfter(now)) {
+            throw new ValidationException("Пользователь не создан. Некорректная дата рождения.");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
