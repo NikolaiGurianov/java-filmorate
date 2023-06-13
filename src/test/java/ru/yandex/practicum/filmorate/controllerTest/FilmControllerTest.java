@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
     FilmController filmController;
+
     @BeforeEach
     public void setUp() {
         filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
