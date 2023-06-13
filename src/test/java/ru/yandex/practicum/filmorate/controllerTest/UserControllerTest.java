@@ -14,8 +14,9 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-    private UserController userController;
 
+    private UserController userController;
+    
     @BeforeEach
     public void setUp() {
         userController = new UserController(new UserService(new InMemoryUserStorage()));
