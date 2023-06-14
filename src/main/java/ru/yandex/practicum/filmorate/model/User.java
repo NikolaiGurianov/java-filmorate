@@ -28,7 +28,6 @@ public class User {
     private LocalDate birthday;
 
     private final Set<Integer> friends = new HashSet<>();
-    private final Set<Integer> likedFilms = new HashSet<>();
 
 }
 

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,12 +64,9 @@ public class UserService {
         if (friends.isEmpty()) {
             throw new ValidationException("Список друзей пуст");
         }
-        List<User> result = new ArrayList<>();
-        for (Integer friendId : friends) {
-            User friend = userStorage.getUserById(friendId);
-            result.add(friend);
-        }
-        return result;
+        return friends.stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
     public List<User> getMutualFriend(int userId, int friendId) {
@@ -77,20 +75,18 @@ public class UserService {
         List<User> mutualFriends = new ArrayList<>();
 
         if (userFriends.isEmpty() || friendFriends.isEmpty()) {
-            log.info("У одного из пользователей упстой список друзей");
+            log.info("У одного из пользователей пустой список друзей");
             return mutualFriends;
         }
-        Set<Integer> commonFriends = new HashSet<>(userFriends);
-        commonFriends.retainAll(friendFriends);
+        mutualFriends = userFriends.stream()
+                .filter(friendFriends::contains)
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
 
-        if (commonFriends.isEmpty()) {
+        if (mutualFriends.isEmpty()) {
             log.info("У пользователей нет общих друзей");
-            return mutualFriends;
         }
-        for (Integer integer : commonFriends) {
-            User friend = userStorage.getUserById(integer);
-            mutualFriends.add(friend);
-        }
+
         return mutualFriends;
     }
 

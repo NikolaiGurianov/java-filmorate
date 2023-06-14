@@ -43,13 +43,8 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getPopular(@RequestParam(value = "count", required = false) Integer count) {
-        List<Film> result;
-        if (count != null) {
-            result = filmService.getPopularFilms(count);
-        } else {
-            result = filmService.getPopularFilms();
-        }
+    public ResponseEntity<List<Film>> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
+        List<Film> result = filmService.getPopularFilms(count);
         return ResponseEntity.ok(result);
     }
 

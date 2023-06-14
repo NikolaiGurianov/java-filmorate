@@ -38,9 +38,7 @@ public class FilmService {
                     .body("Недопустимое значение ID пользователя");
         }
         Film film = filmStorage.getFilmById(filmId);
-        film.getLikedByUsers().add(userId);
-        film.setLike(film.getLike() + 1);
-        filmStorage.updateFilm(film);
+        film.addLike(filmId);
         log.info("Фильм добавлен в список понравившихся");
         return ResponseEntity.ok("Фильм добавлен в список понравившихся");
     }
@@ -52,19 +50,9 @@ public class FilmService {
                     .body("Недопустимое значение ID пользователя");
         }
         Film film = filmStorage.getFilmById(filmId);
-        film.getLikedByUsers().remove(userId);
-        film.setLike(film.getLike() - 1);
-        filmStorage.updateFilm(film);
+        film.removeLike(filmId);
         log.info("Фильм удален из списка понравившихся");
         return ResponseEntity.ok("Фильм удален из списка понравившихся");
-    }
-
-    public List<Film> getPopularFilms() {
-        List<Film> popularFilms = new ArrayList<>(filmStorage.getAllFilms());
-        return popularFilms.stream()
-                .sorted(Comparator.comparing(Film::getLike).reversed())
-                .limit(10)
-                .collect(Collectors.toList());
     }
 
     public List<Film> getPopularFilms(int limit) {
