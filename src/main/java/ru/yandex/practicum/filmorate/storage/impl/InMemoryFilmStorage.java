@@ -1,13 +1,12 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.debug("Фильм обновлен: '{}'", updatedFilm);
             return updatedFilm;
         } else {
-            throw new ValidationException("Фильм не обновлен. Не найден id фильма.");
+            throw new NotFoundException("Фильм не обновлен. Не найден id фильма.");
         }
     }
 
@@ -56,7 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (filmMap.containsKey(id)) {
             return filmMap.get(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с таким ID не найден");
+            throw new NotFoundException("Фильм с таким ID не найден");
         }
     }
 }

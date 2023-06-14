@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -38,20 +37,19 @@ public class FilmController {
     }
 
     @PutMapping("{id}/like/{userId}")
-    public ResponseEntity<String> addLike(@PathVariable int id, @PathVariable int userId) {
-        return filmService.likeFilm(id, userId);
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.likeFilm(id, userId);
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<Film>> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
-        List<Film> result = filmService.getPopularFilms(count);
-        return ResponseEntity.ok(result);
+    public List<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") Integer count) {
+        return filmService.getPopularFilms(count);
     }
 
 
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<String> removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
-        return filmService.removeLikeFilm(id, userId);
+    public void removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        filmService.removeLikeFilm(id, userId);
     }
 
     @GetMapping("/{id}")

@@ -1,13 +1,12 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.debug("Пользователь обновлен: '{}'", updatedUser);
             return updatedUser;
         } else {
-            throw new ValidationException("Пользователь не обновлен. Не найден id пользователя.");
+            throw new NotFoundException("Пользователь не обновлен. Не найден ID пользователя.");
         }
     }
 
@@ -56,7 +55,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (userMap.containsKey(id)) {
             return userMap.get(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с таким ID не найден");
+            throw new NotFoundException("Пользователь с таким ID не найден");
         }
     }
 }

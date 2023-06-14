@@ -11,8 +11,8 @@ import java.util.Set;
 @Data
 public class Film {
 
-
     private int id;
+
     @NotNull
     @NotBlank(message = "Название фильма не может состоять только из пробелов")
     private String name;

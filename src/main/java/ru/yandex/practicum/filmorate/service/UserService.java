@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -34,29 +33,28 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public ResponseEntity<String> addFriend(int userId, int friendId) {
+    public void addFriend(int userId, int friendId) {
         if (isFriend(userId, friendId)) {
             log.info("Пользователи уже друзья");
-            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body("Пользователи уже друзья");
+            throw new ValidationException("Пользователи уже друзья");
         }
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
-        return ResponseEntity.ok("Пользователи добавлены в друзья");
+        log.info("Пользователи добавлены в друзья");
     }
 
-    public ResponseEntity<String> deleteFriend(int userId, int friendId) {
+    public void deleteFriend(int userId, int friendId) {
         if (!isFriend(userId, friendId)) {
             log.info("Пользователи не были добавлены в друзья");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Пользователи не были добавлены в друзья");
+            throw new NotFoundException("Пользователи не были добавлены в друзья");
         }
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
-        user.getFriends().remove(userId);
+        user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
-        return ResponseEntity.ok("Пользователи удалены из друзей");
+        log.info("Пользователи удалены из друзей");
     }
 
     public List<User> getFriendsById(int userId) {
@@ -86,10 +84,8 @@ public class UserService {
         if (mutualFriends.isEmpty()) {
             log.info("У пользователей нет общих друзей");
         }
-
         return mutualFriends;
     }
-
 
     public boolean isFriend(int userId, int friendId) {
         User user = userStorage.getUserById(userId);

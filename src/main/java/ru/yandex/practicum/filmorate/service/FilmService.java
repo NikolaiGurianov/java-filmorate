@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -31,28 +30,24 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public ResponseEntity<String> likeFilm(int filmId, int userId) {
+    public void likeFilm(int filmId, int userId) {
         if (userId <= 0) {
             log.info("Недопустимое значение ID пользователя");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Недопустимое значение ID пользователя");
+            throw new NotFoundException("Недопустимое значение ID пользователя");
         }
         Film film = filmStorage.getFilmById(filmId);
         film.addLike(filmId);
         log.info("Фильм добавлен в список понравившихся");
-        return ResponseEntity.ok("Фильм добавлен в список понравившихся");
     }
 
-    public ResponseEntity<String> removeLikeFilm(int filmId, int userId) {
+    public void removeLikeFilm(int filmId, int userId) {
         if (userId <= 0) {
             log.info("Недопустимое значение ID пользователя");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Недопустимое значение ID пользователя");
+            throw new NotFoundException("Недопустимое значение ID пользователя");
         }
         Film film = filmStorage.getFilmById(filmId);
         film.removeLike(filmId);
         log.info("Фильм удален из списка понравившихся");
-        return ResponseEntity.ok("Фильм удален из списка понравившихся");
     }
 
     public List<Film> getPopularFilms(int limit) {

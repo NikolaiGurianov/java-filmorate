@@ -4,10 +4,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -32,25 +33,45 @@ class FilmControllerTest {
 
     @Test
     void createFailDescriptionTest() {
-        Film actualFilm = new Film(1, "INTERSTELLAR", "Наше время на Земле подошло к концу, " +
-                "команда исследователей берет на себя самую важную миссию в истории человечества; путешествуя за " +
-                "пределами нашей галактики, чтобы узнать есть ли у человечества будущ",
-                LocalDate.of(2014, 11, 6), 169);
+        Film actualFilm = new Film(1, "INTERSTELLAR", "Наше время на Земле подошло к концу, " + "команда исследователей берет на себя самую важную миссию в истории человечества; путешествуя за " + "пределами нашей галактики, чтобы узнать есть ли у человечества будущ", LocalDate.of(2014, 11, 6), 169);
         assertEquals(201, actualFilm.getDescription().length());
         assertThrows(ValidationException.class, () -> filmController.createFilm(actualFilm));
     }
 
     @Test
     void createFailReleaseDateTest() {
-        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh",
-                LocalDate.of(1895, 12, 27), 169);
+        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh", LocalDate.of(1895, 12, 27), 169);
         assertThrows(ValidationException.class, () -> filmController.createFilm(actualFilm));
     }
 
     @Test
     void createFailDurationTest() {
-        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh",
-                LocalDate.of(2014, 11, 6), -169);
+        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh", LocalDate.of(2014, 11, 6), -169);
         assertThrows(ValidationException.class, () -> filmController.createFilm(actualFilm));
+    }
+
+    @Test
+    void likeFilmTest() {
+        int userId = 1;
+        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh", LocalDate.of(2014, 11, 6), 169);
+        filmController.createFilm(actualFilm);
+        assertDoesNotThrow(() -> filmController.addLike(actualFilm.getId(), userId));
+        assertTrue(actualFilm.getLikedByUsers().contains(userId));
+
+        int invalidUserId = -1;
+        assertThrows(NotFoundException.class, () -> filmController.addLike(actualFilm.getId(), invalidUserId));
+    }
+
+    @Test
+    void removeLikeFilmTest() {
+        int userId = 1;
+        Film actualFilm = new Film(1, "INTERSTELLAR", "qwertyasdfgh", LocalDate.of(2014, 11, 6), 169);
+        filmController.createFilm(actualFilm);
+        assertDoesNotThrow(() -> filmController.addLike(actualFilm.getId(), userId));
+        assertDoesNotThrow(() -> filmController.removeLikeFilm(actualFilm.getId(), userId));
+        assertFalse(actualFilm.getLikedByUsers().contains(userId));
+
+        int invalidUserId = -1;
+        assertThrows(NotFoundException.class, () -> filmController.addLike(actualFilm.getId(), invalidUserId));
     }
 }
