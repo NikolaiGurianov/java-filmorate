@@ -1,17 +1,25 @@
 package ru.yandex.practicum.filmorate.controllerTest;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-    UserController userController = new UserController();
+    private UserController userController;
+
+    @BeforeEach
+    public void setUp() {
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
+    }
 
     @Test
     void createTest() {
@@ -57,5 +65,37 @@ class UserControllerTest {
         User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
                 LocalDate.of(9999, 1, 2));
         assertThrows(ValidationException.class, () -> userController.createUser(actualUser));
+    }
+
+    @Test
+    void addFriendTest() {
+        User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "Tyler",
+                LocalDate.of(2000, 1, 2));
+
+        User expectedUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
+        userController.createUser(actualUser);
+        userController.createUser(expectedUser);
+        assertTrue(actualUser.getFriends().isEmpty());
+        userController.addFriend(actualUser.getId(), expectedUser.getId());
+        assertFalse(actualUser.getFriends().isEmpty());
+    }
+
+    @Test
+    void deleteFriendTest() {
+        User actualUser = new User(1, "yandex@yandex.ru", "Tyler", "Tyler",
+                LocalDate.of(2000, 1, 2));
+
+        User expectedUser = new User(1, "yandex@yandex.ru", "Tyler", "The Creator",
+                LocalDate.of(2000, 1, 2));
+        userController.createUser(actualUser);
+        userController.createUser(expectedUser);
+        assertTrue(actualUser.getFriends().isEmpty());
+
+        userController.addFriend(actualUser.getId(), expectedUser.getId());
+        assertFalse(actualUser.getFriends().isEmpty());
+
+        userController.deleteFriend(actualUser.getId(), expectedUser.getId());
+        assertTrue(actualUser.getFriends().isEmpty());
     }
 }
