@@ -2,30 +2,29 @@ package ru.yandex.practicum.filmorate.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @ControllerAdvice
 public class CentralizedErrorHandler {
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseBody handleUserException(final ValidationException e) {
-        return new ResponseBody(e.getMessage());
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleUserException(final ValidationException e) {
+        return new ResponseEntity<>(new ResponseBody(String.valueOf(e.getClass()), e.getMessage()), HttpStatus.valueOf(500));
+
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseBody handleUserNotFoundException(final NotFoundException e) {
-        return new ResponseBody(e.getMessage());
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleUserNotFoundException(final NotFoundException e) {
+        return new ResponseEntity<>(new ResponseBody(String.valueOf(e.getClass()), e.getMessage()), HttpStatus.valueOf(404));
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseBody handleException(final Exception e) {
-        return new ResponseBody("Возникло исключение.");
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleException(final ResponseStatusException e) {
+        return new ResponseEntity<>(new ResponseBody(String.valueOf(e.getClass()), e.getReason()), e.getStatus());
     }
 }
 

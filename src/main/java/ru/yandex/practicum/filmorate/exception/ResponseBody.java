@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class ResponseBody {
-    private final String error;
-
-    public ResponseBody(String error) {
-        this.error = error;
-    }
-
-    public String getError() {
-        return error;
-    }
+    private String className;
+    private String message;
 }

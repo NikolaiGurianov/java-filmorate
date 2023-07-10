@@ -6,23 +6,27 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final LikeStorage likeStorage;
+    private final Validator validator = new Validator();
+
 
     public Film updateFilm(Film film) {
+        validator.validateFilm(film);
         return filmStorage.updateFilm(film);
     }
 
     public Film createFilm(Film film) {
+        validator.validateFilm(film);
         return filmStorage.createFilm(film);
     }
 
@@ -30,35 +34,26 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
+    public Film getFilmById(int id) {
+        try {
+            return filmStorage.getFilmById(id);
+        } catch (Exception e) {
+        throw new NotFoundException("Фильм с таким ID не найден");
+    }
+    }
+
     public void likeFilm(int filmId, int userId) {
-        if (userId <= 0) {
-            log.info("Недопустимое значение ID пользователя");
-            throw new NotFoundException("Недопустимое значение ID пользователя");
-        }
-        Film film = filmStorage.getFilmById(filmId);
-        film.addLike(filmId);
-        log.info("Фильм добавлен в список понравившихся");
+        likeStorage.addLike(filmId, userId);
     }
 
     public void removeLikeFilm(int filmId, int userId) {
-        if (userId <= 0) {
-            log.info("Недопустимое значение ID пользователя");
-            throw new NotFoundException("Недопустимое значение ID пользователя");
+        if (filmId < 1 || userId < 1) {
+            throw new NotFoundException("ID пользователя или фильма не может быть меньше 1.");
         }
-        Film film = filmStorage.getFilmById(filmId);
-        film.removeLike(filmId);
-        log.info("Фильм удален из списка понравившихся");
+        likeStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int limit) {
-        List<Film> popularFilms = new ArrayList<>(filmStorage.getAllFilms());
-        return popularFilms.stream()
-                .sorted(Comparator.comparing(Film::getLike).reversed())
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    public Film getFilmById(int id) {
-        return filmStorage.getFilmById(id);
+        return likeStorage.getPopularFilms(limit);
     }
 }
