@@ -5,12 +5,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -238,7 +235,7 @@ class FilmorateApplicationTests {
         filmDBStorage.createFilm(expectedFilm1);
 
         Film[] expected = {expectedFilm, actualFilm};
-        Assertions.assertArrayEquals(expected, likeDBStorage.getPopularFilms(2).toArray());
+        Assertions.assertArrayEquals(expected, filmDBStorage.getPopularFilms(2).toArray());
     }
 
     @DisplayName("Тест добавления к пользователю друга")

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl.inMemory;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

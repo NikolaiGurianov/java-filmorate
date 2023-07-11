@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl.inMemory;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -57,5 +57,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else {
             throw new NotFoundException("Фильм с таким ID не найден");
         }
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int limit) {
+        return null;
     }
 }

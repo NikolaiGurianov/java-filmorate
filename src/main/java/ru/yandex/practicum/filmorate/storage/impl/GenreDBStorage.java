@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
@@ -23,7 +23,7 @@ public class GenreDBStorage implements GenreStorage {
     public Genre getGenreById(Integer id) {
         try {
             log.debug("Получен жанр по id {}.", id);
-            return jdbcTemplate.queryForObject("select * from genres where id =?", genreRowMapper(), id);
+            return jdbcTemplate.queryForObject("select * from genres where id =?", new GenreRowMapper(), id);
         } catch (Exception e) {
             throw new NotFoundException("Такой ID жанра не найден.");
         }
@@ -32,7 +32,7 @@ public class GenreDBStorage implements GenreStorage {
     @Override
     public List<Genre> getAllGenre() {
         log.debug("Cписок жанров получен");
-        return jdbcTemplate.query("select * from genres order by id asc", genreRowMapper());
+        return jdbcTemplate.query("select * from genres order by id asc", new GenreRowMapper());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GenreDBStorage implements GenreStorage {
         return jdbcTemplate.query(
                 "SELECT g.id, g.name from genres g  join genres_films gf on g.id = gf.genre_id " +
                         "where gf.film_id = ? order by genre_id asc",
-                genreRowMapper(), filmId);
+                new GenreRowMapper(), filmId);
     }
 
     @Override
@@ -51,11 +51,5 @@ public class GenreDBStorage implements GenreStorage {
             jdbcTemplate.update("insert into genres_films (film_id, genre_id) values (?,?)", film.getId(), genre.getId());
         }
         film.setGenres(new HashSet<>(getGenresForFilm(film.getId())));
-
-    }
-
-
-    private RowMapper<Genre> genreRowMapper() {
-        return (rs, rowNum) -> new Genre(rs.getInt("id"), rs.getString("name"));
     }
 }

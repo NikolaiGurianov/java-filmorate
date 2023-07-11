@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.MPAStorage;
 import ru.yandex.practicum.filmorate.storage.model.FilmDB;
 
@@ -26,7 +25,6 @@ public class FilmDBStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MPAStorage mpaStorage;
     private final GenreStorage genreStorage;
-    private final LikeStorage likeStorage;
 
     @Override
     public Film createFilm(Film film) {
@@ -43,10 +41,7 @@ public class FilmDBStorage implements FilmStorage {
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         film.setId(id.intValue());
         film.setMpa(mpaStorage.getMPAById(film.getMpa().getId()));
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            genreStorage.updateGenres(film);
-
-        }
+        genreStorage.updateGenres(film);
         log.info("Добавлен новый фильм с ID={}", film.getId());
         return film;
     }
@@ -80,7 +75,15 @@ public class FilmDBStorage implements FilmStorage {
         FilmDB filmDB = jdbcTemplate.queryForObject("select * from films where id = ?",
                 new FilmRowMapper(), id);
         return fromDBToDto(Objects.requireNonNull(filmDB));
+    }
 
+    @Override
+    public List<Film> getPopularFilms(int limit) {
+        return jdbcTemplate.query("select f.*, count(l.user_id) as rate from films f " +
+                                "left join likes l on f.id = l.film_id group by f.id order by rate DESC limit ?",
+                        new FilmRowMapper(), limit).stream()
+                .map(this::fromDBToDto)
+                .collect(Collectors.toList());
     }
 
     private Film fromDBToDto(FilmDB filmDB) {

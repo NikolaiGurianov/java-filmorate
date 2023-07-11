@@ -54,6 +54,6 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int limit) {
-        return likeStorage.getPopularFilms(limit);
+        return filmStorage.getPopularFilms(limit);
     }
 }

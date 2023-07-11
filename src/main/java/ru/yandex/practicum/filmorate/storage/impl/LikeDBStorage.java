@@ -5,23 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.FilmRowMapper;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.*;
-import ru.yandex.practicum.filmorate.storage.model.FilmDB;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LikeDBStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final MPAStorage mpaStorage;
-    private final GenreStorage genreStorage;
 
 
     @Override
@@ -56,27 +50,5 @@ public class LikeDBStorage implements LikeStorage {
                 (rs, rowNum) -> rs.getInt("user_id"), filmId);
         log.debug("Получен список user_id понравившимся Film с id {}.", filmId);
         return new HashSet<>(usersId);
-    }
-
-    @Override
-    public List<Film> getPopularFilms(int limit) {
-        return jdbcTemplate.query("select f.*, count(l.user_id) as rate from films f " +
-                                "left join likes l on f.id = l.film_id group by f.id order by rate DESC limit ?",
-                        new FilmRowMapper(), limit).stream()
-                .map(this::fromDBToDto)
-                .collect(Collectors.toList());
-    }
-
-    private Film fromDBToDto(FilmDB filmDB) {
-        Film film = new Film();
-        film.setId(filmDB.getId());
-        film.setName(filmDB.getName());
-        film.setDescription(filmDB.getDescription());
-        film.setDuration(filmDB.getDuration());
-        film.setReleaseDate(filmDB.getReleaseDate());
-        film.setMpa(mpaStorage.getMPAById(filmDB.getMpaId()));
-        film.setGenres(new HashSet<>(genreStorage.getGenresForFilm(filmDB.getId())));
-        film.setRate(filmDB.getRate());
-        return film;
     }
 }
